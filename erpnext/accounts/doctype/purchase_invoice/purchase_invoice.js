@@ -650,7 +650,8 @@ frappe.ui.form.on("Purchase Invoice", {
         }
     },
 	*/
-	
+
+	/* 
 	bill_date: function(frm) {
         if (frm.doc.bill_date && (!frm.doc.due_date || frm.doc.due_date < frm.doc.bill_date)) {
             // Usar la fecha más reciente entre posting_date y bill_date
@@ -679,7 +680,8 @@ frappe.ui.form.on("Purchase Invoice", {
             return false;
         }
     },
-
+	*/
+	
 	add_custom_buttons: function (frm) {
 		if (frm.doc.docstatus == 1 && frm.doc.per_received < 100 && frm.doc.update_stock == 0) {
 			frm.add_custom_button(
