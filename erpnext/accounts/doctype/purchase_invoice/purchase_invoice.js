@@ -635,6 +635,9 @@ frappe.ui.form.on("Purchase Invoice", {
 
 	refresh: function (frm) {
 		frm.events.add_custom_buttons(frm);
+		if (frm.fields_dict.naming_series) {
+            frm.fields_dict.naming_series.$wrapper.hide();
+        }
 	},
 
 	mode_of_payment: function (frm) {
@@ -643,45 +646,6 @@ frappe.ui.form.on("Purchase Invoice", {
 		});
 	},
 
-	/* 
-	posting_date: function(frm) {
-        if (frm.doc.posting_date && (!frm.doc.due_date || frm.doc.due_date < frm.doc.posting_date)) {
-            frm.set_value("due_date", frm.doc.posting_date);
-        }
-    },
-	*/
-
-	/* 
-	bill_date: function(frm) {
-        if (frm.doc.bill_date && (!frm.doc.due_date || frm.doc.due_date < frm.doc.bill_date)) {
-            // Usar la fecha más reciente entre posting_date y bill_date
-            let min_date = frm.doc.posting_date;
-            if (frm.doc.bill_date > min_date) {
-                min_date = frm.doc.bill_date;
-            }
-            frm.set_value("due_date", min_date);
-        }
-    },
-
-	validate: function(frm) {
-        let posting_date = frm.doc.posting_date;
-        let bill_date = frm.doc.bill_date;
-        let due_date = frm.doc.due_date;
-
-        if (due_date && posting_date && due_date < posting_date) {
-            frappe.msgprint(__("Due Date cannot be before Posting Date. Adjusting automatically."));
-            frm.set_value("due_date", posting_date);
-            return false;
-        }
-
-        if (due_date && bill_date && due_date < bill_date) {
-            frappe.msgprint(__("Due Date cannot be before Bill Date. Adjusting automatically."));
-            frm.set_value("due_date", bill_date);
-            return false;
-        }
-    },
-	*/
-	
 	add_custom_buttons: function (frm) {
 		if (frm.doc.docstatus == 1 && frm.doc.per_received < 100 && frm.doc.update_stock == 0) {
 			frm.add_custom_button(
@@ -735,6 +699,10 @@ frappe.ui.form.on("Purchase Invoice", {
 	},
 
 	onload: function (frm) {
+		if (frm.fields_dict.naming_series) {
+            frm.fields_dict.naming_series.$wrapper.hide();
+        }
+
 		if (frm.doc.__onload && frm.doc.supplier) {
 			if (frm.is_new()) {
 				frm.doc.apply_tds = frm.doc.__onload.supplier_tds ? 1 : 0;
