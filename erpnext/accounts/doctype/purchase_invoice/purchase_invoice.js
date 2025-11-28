@@ -632,7 +632,6 @@ frappe.ui.form.on("Purchase Invoice", {
 			};
 		};
 	},
-
 	refresh: function (frm) {
 		frm.events.add_custom_buttons(frm);
 		if (frm.fields_dict.naming_series) {

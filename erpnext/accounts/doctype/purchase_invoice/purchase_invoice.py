@@ -104,6 +104,7 @@ class PurchaseInvoice(BuyingController):
 		clave_acceso: DF.Data | None
 		clearance_date: DF.Date | None
 		company: DF.Link | None
+		comprador: DF.Link | None
 		contact_display: DF.SmallText | None
 		contact_email: DF.SmallText | None
 		contact_mobile: DF.SmallText | None
