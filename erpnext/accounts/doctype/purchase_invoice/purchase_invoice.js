@@ -636,8 +636,8 @@ frappe.ui.form.on("Purchase Invoice", {
 	refresh: function (frm) {
 		frm.events.add_custom_buttons(frm);
 		if (frm.fields_dict.naming_series) {
-            frm.fields_dict.naming_series.$wrapper.hide();
-        }
+			frm.fields_dict.naming_series.$wrapper.hide();
+		}
 	},
 
 	mode_of_payment: function (frm) {
@@ -700,8 +700,8 @@ frappe.ui.form.on("Purchase Invoice", {
 
 	onload: function (frm) {
 		if (frm.fields_dict.naming_series) {
-            frm.fields_dict.naming_series.$wrapper.hide();
-        }
+			frm.fields_dict.naming_series.$wrapper.hide();
+		}
 
 		if (frm.doc.__onload && frm.doc.supplier) {
 			if (frm.is_new()) {
@@ -761,6 +761,22 @@ frappe.ui.form.on("Purchase Invoice", {
 	},
 
 	//CAMPOS DONDE SE PONE EL VALOR DE RETENCION
+	genera_retencion: function (frm) {
+		if (frm.doc.genera_retencion) {
+			if (frm.doc.tipo_retencion_renta) {
+				frm.trigger('tipo_retencion_renta');
+			}
+
+			if (frm.doc.tipo_retencion_iva) {
+				frm.trigger('tipo_retencion_iva');
+			}
+		} else {
+			frm.set_value('porcentaje_de_retencion_renta', '');
+			frm.set_value('porcentaje_de_retencion_iva', '');
+			frm.set_df_property("porcentaje_de_retencion_renta", "options", []);
+			frm.set_df_property("porcentaje_de_retencion_iva", "options", []);
+		}
+	},
 
 	valor_excluido_base_renta: function (frm) {
 		frm.events.calcular_total_retencion(frm);
@@ -778,6 +794,7 @@ frappe.ui.form.on("Purchase Invoice", {
 		const tipo = frm.doc.tipo_retencion_renta;
 
 		frm.set_df_property("porcentaje_de_retencion_renta", "read_only", !tipo);
+		console.log("TIPOS DE RENTA", tipo);
 
 		if (!tipo) {
 			frm.set_df_property("porcentaje_de_retencion_renta", "options", []);
@@ -790,7 +807,7 @@ frappe.ui.form.on("Purchase Invoice", {
 			args: { tipo_retencion: tipo },
 			callback: function (r) {
 				let opciones = (r.message || []).map(String);
-
+				console.log("OPCIONES", opciones);
 				frm.set_df_property("porcentaje_de_retencion_renta", "options", opciones);
 
 				if (opciones.length === 1) {
@@ -841,7 +858,7 @@ frappe.ui.form.on("Purchase Invoice", {
 		let porc_renta = flt(frm.doc.porcentaje_de_retencion_renta);
 		let porc_iva = flt(frm.doc.porcentaje_de_retencion_iva);
 
-		let base_total_renta = flt(frm.doc.total); 
+		let base_total_renta = flt(frm.doc.total);
 		let valor_excluido = flt(frm.doc.valor_excluido_base_renta);
 
 		let base_renta = base_total_renta - valor_excluido;
@@ -865,7 +882,7 @@ frappe.ui.form.on("Purchase Invoice", {
 		frm.doc.valor_retenido_iva = valor_retenido_iva;
 		frm.doc.valor_no_retenido_iva = valor_no_retenido_iva;
 		frm.doc.total_retener = total_retener;
-		frm.doc.valor_a_no_retener = total_no_retener; 
+		frm.doc.valor_a_no_retener = total_no_retener;
 
 		// Refrescamos los campos en la UI
 		frm.refresh_field("valor_retenido_renta");
@@ -874,5 +891,25 @@ frappe.ui.form.on("Purchase Invoice", {
 		frm.refresh_field("valor_no_retenido_iva");
 		frm.refresh_field("total_retener");
 		frm.refresh_field("valor_a_no_retener");
+	},
+	validate: function(frm) {
+		if (!frm.doc.comprador || frm.doc.comprador.trim() === '') {
+			frappe.msgprint({
+				title: __('Campo Requerido'),
+				message: __('El campo <b>Comprador</b> es obligatorio. Por favor, complételo antes de continuar.'),
+				indicator: 'red'
+			});
+			frappe.validated = false;  
+		}
+		if (flt(frm.doc.grand_total) > 500) {
+			if (!frm.doc.formas_pago || frm.doc.formas_pago === 'Seleccione la Forma de Pago') {
+				frappe.msgprint({
+					title: __('Forma de Pago Requerida'),
+					message: __('Para facturas mayores a <b>$500.00</b> debe seleccionar una <b>Forma de Pago</b> válida.'),
+					indicator: 'red'
+				});
+				frappe.validated = false;
+			}
+		}
 	}
 });

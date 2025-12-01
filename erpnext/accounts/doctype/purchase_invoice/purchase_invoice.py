@@ -123,7 +123,7 @@ class PurchaseInvoice(BuyingController):
 		el_pago_es_a_un_régimen_fiscal_preferente: DF.Check
 		fecha_autorizacion: DF.Date | None
 		fecha_emision: DF.Date | None
-		formas_pago: DF.Literal["EFECTIVO", "COMPENSACI\u00d3N DE DEUDAS", "TARJETA DE D\u00c9BITO", "DINERO ELECTR\u00d3NICO", "TARJETA PREPAGO", "TARJETA DE CR\u00c9DITO", "OTROS CON UTILIZACI\u00d3N"]
+		formas_pago: DF.Literal["Seleccione la Forma de Pago", "01 - EFECTIVO", "15 - COMPENSACI\u00d3N DE DEUDAS", "16 - TARJETA DE D\u00c9BITO", "17 - DINERO ELECTR\u00d3NICO", "18 - TARJETA PREPAGO", "19 - TARJETA DE CR\u00c9DITO", "20 - OTROS CON UTILIZACI\u00d3N DEL SISTEMA FINANCIERO", "21 - ENDOSO DE T\u00cdTULOS"]
 		from_date: DF.Date | None
 		genera_retencion: DF.Check
 		grand_total: DF.Currency
