@@ -10,7 +10,7 @@
   "comprador",
   "title",
   "naming_series",
-  "serie",
+  "bill_no",
   "clave_acceso",
   "numero_de_autorizacion",
   "supplier",
@@ -49,7 +49,7 @@
   "denominacion_pago",
   "pais_de_pago",
   "supplier_invoice_details",
-  "bill_no",
+  "column_break_kytt",
   "column_break_15",
   "bill_date",
   "accounting_dimensions_section",
@@ -289,7 +289,6 @@
   {
    "fieldname": "due_date",
    "fieldtype": "Date",
-   "hidden": 1,
    "label": "Due Date",
    "oldfieldname": "due_date",
    "oldfieldtype": "Date"
@@ -422,7 +421,7 @@
   {
    "fieldname": "bill_no",
    "fieldtype": "Data",
-   "label": "Supplier Invoice No",
+   "label": "N\u00famero de Factura",
    "oldfieldname": "bill_no",
    "oldfieldtype": "Data",
    "print_hide": 1,
@@ -435,6 +434,7 @@
   {
    "fieldname": "bill_date",
    "fieldtype": "Date",
+   "hidden": 1,
    "label": "Supplier Invoice Date",
    "no_copy": 1,
    "oldfieldname": "bill_date",
@@ -1715,11 +1715,6 @@
    "label": "Numero de Autorizaci\u00f3n"
   },
   {
-   "fieldname": "serie",
-   "fieldtype": "Data",
-   "label": "Serie"
-  },
-  {
    "fieldname": "documento_modificado",
    "fieldtype": "Data",
    "label": "Documento Modificado",
@@ -1889,6 +1884,10 @@
    "fieldtype": "Link",
    "label": "Comprador",
    "options": "Emisor"
+  },
+  {
+   "fieldname": "column_break_kytt",
+   "fieldtype": "Column Break"
   }
  ],
  "grid_page_length": 50,
@@ -1896,8 +1895,8 @@
  "idx": 204,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-11-28 17:03:05.724282",
- "modified_by": "jona@gmail.com",
+ "modified": "2025-12-02 15:01:29.123366",
+ "modified_by": "diego2007@gmail.com",
  "module": "Accounts",
  "name": "Purchase Invoice",
  "naming_rule": "By \"Naming Series\" field",

@@ -792,9 +792,7 @@ frappe.ui.form.on("Purchase Invoice", {
 
 	tipo_retencion_renta: function (frm) {
 		const tipo = frm.doc.tipo_retencion_renta;
-
 		frm.set_df_property("porcentaje_de_retencion_renta", "read_only", !tipo);
-		console.log("TIPOS DE RENTA", tipo);
 
 		if (!tipo) {
 			frm.set_df_property("porcentaje_de_retencion_renta", "options", []);
@@ -807,7 +805,6 @@ frappe.ui.form.on("Purchase Invoice", {
 			args: { tipo_retencion: tipo },
 			callback: function (r) {
 				let opciones = (r.message || []).map(String);
-				console.log("OPCIONES", opciones);
 				frm.set_df_property("porcentaje_de_retencion_renta", "options", opciones);
 
 				if (opciones.length === 1) {
