@@ -1,7 +1,7 @@
 {
  "actions": [],
  "allow_import": 1,
- "autoname": "format:{supplier} - {serie}",
+ "autoname": "format:{supplier} - {bill_no}",
  "creation": "2013-05-21 16:16:39",
  "doctype": "DocType",
  "document_type": "Document",
@@ -1895,7 +1895,7 @@
  "idx": 204,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-12-02 15:01:29.123366",
+ "modified": "2025-12-03 15:49:02.952478",
  "modified_by": "diego2007@gmail.com",
  "module": "Accounts",
  "name": "Purchase Invoice",
