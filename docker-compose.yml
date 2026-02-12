@@ -1,11 +1,21 @@
 # ==============================================================================
-# ERPNext Docker Compose — Activación directa desde la raíz del proyecto
+# ERPNext + SRI Docker Compose — Activación directa desde la raíz del proyecto
 # ==============================================================================
 # Uso:
-#   docker compose up -d
+#   docker compose build       (primera vez — construye imagen con SRI)
+#   docker compose up -d       (levanta todo)
 #   Espera ~2-3 min y abre http://localhost:8080
 #   Usuario: Administrator | Contraseña: admin (o la definida en .env)
 # ==============================================================================
+
+x-custom-image: &custom_image
+  image: erpnext-sri:${ERPNEXT_VERSION:-v16.5.0}
+  platform: linux/amd64
+  build:
+    context: .
+    dockerfile: Dockerfile
+    args:
+      ERPNEXT_VERSION: ${ERPNEXT_VERSION:-v16.5.0}
 
 services:
   # ============================================================================
@@ -52,8 +62,7 @@ services:
   # Configurador — Inicializa las configuraciones de Bench
   # ============================================================================
   configurator:
-    image: frappe/erpnext:${ERPNEXT_VERSION:-v16.5.0}
-    platform: linux/amd64
+    <<: *custom_image
     restart: on-failure
     entrypoint:
       - bash
@@ -81,11 +90,10 @@ services:
       - erpnext-network
 
   # ============================================================================
-  # Creador de sitio — Crea el sitio ERPNext automáticamente en el primer arranque
+  # Creador de sitio — Crea el sitio ERPNext + SRI automáticamente
   # ============================================================================
   create-site:
-    image: frappe/erpnext:${ERPNEXT_VERSION:-v16.5.0}
-    platform: linux/amd64
+    <<: *custom_image
     restart: "no"
     entrypoint:
       - bash
@@ -102,7 +110,7 @@ services:
             echo "Timeout: no se encontró common_site_config.json con las claves requeridas";
             exit 1;
           fi;
-        done; echo "Configuración encontrada. Creando sitio ERPNext..."; bench new-site --mariadb-user-host-login-scope='%' --admin-password=${SITE_ADMIN_PASSWORD:-admin} --db-root-username=root --db-root-password=${DB_PASSWORD:-admin} --install-app erpnext --set-default frontend;
+        done; echo "Configuración encontrada. Creando sitio ERPNext + SRI..."; bench new-site --mariadb-user-host-login-scope='%' --admin-password=${SITE_ADMIN_PASSWORD:-admin} --db-root-username=root --db-root-password=${DB_PASSWORD:-admin} --install-app erpnext --set-default frontend; echo "Instalando app SRI..."; bench --site frontend install-app sri; echo "SRI instalado correctamente!";
     volumes:
       - sites:/home/frappe/frappe-bench/sites
       - logs:/home/frappe/frappe-bench/logs
@@ -116,8 +124,7 @@ services:
   # Backend — Servidor de aplicación Frappe/ERPNext
   # ============================================================================
   backend:
-    image: frappe/erpnext:${ERPNEXT_VERSION:-v16.5.0}
-    platform: linux/amd64
+    <<: *custom_image
     restart: unless-stopped
     volumes:
       - sites:/home/frappe/frappe-bench/sites
@@ -132,8 +139,7 @@ services:
   # Frontend — Nginx reverse proxy
   # ============================================================================
   frontend:
-    image: frappe/erpnext:${ERPNEXT_VERSION:-v16.5.0}
-    platform: linux/amd64
+    <<: *custom_image
     restart: unless-stopped
     command:
       - nginx-entrypoint.sh
@@ -161,8 +167,7 @@ services:
   # WebSocket — Comunicación en tiempo real
   # ============================================================================
   websocket:
-    image: frappe/erpnext:${ERPNEXT_VERSION:-v16.5.0}
-    platform: linux/amd64
+    <<: *custom_image
     restart: unless-stopped
     command:
       - node
@@ -183,8 +188,7 @@ services:
   # Workers — Procesamiento de colas de trabajo
   # ============================================================================
   queue-short:
-    image: frappe/erpnext:${ERPNEXT_VERSION:-v16.5.0}
-    platform: linux/amd64
+    <<: *custom_image
     restart: unless-stopped
     command: bench worker --queue short,default
     volumes:
@@ -200,8 +204,7 @@ services:
       - erpnext-network
 
   queue-long:
-    image: frappe/erpnext:${ERPNEXT_VERSION:-v16.5.0}
-    platform: linux/amd64
+    <<: *custom_image
     restart: unless-stopped
     command: bench worker --queue long,default,short
     volumes:
@@ -220,8 +223,7 @@ services:
   # Scheduler — Tareas programadas
   # ============================================================================
   scheduler:
-    image: frappe/erpnext:${ERPNEXT_VERSION:-v16.5.0}
-    platform: linux/amd64
+    <<: *custom_image
     restart: unless-stopped
     command: bench schedule
     volumes:
@@ -233,8 +235,51 @@ services:
     networks:
       - erpnext-network
 
+  # ============================================================================
+  # SRI Downloader — Descarga masiva de documentos del SRI
+  # ============================================================================
+  sri-downloader:
+    build:
+      context: .
+      dockerfile: Dockerfile.sri-downloader
+    platform: linux/amd64
+    restart: unless-stopped
+    ports:
+      - "${SRI_DOWNLOADER_PORT:-4000}:4000"
+    environment:
+      PORT: 4000
+      N8N_WEBHOOK_URL: ${N8N_WEBHOOK_URL:-}
+      WINDOWS_API_URL: ${WINDOWS_API_URL:-}
+      SRI_USER: ${SRI_USER:-}
+      SRI_PASS: ${SRI_PASS:-}
+      FRAPPE_URL: http://frontend:8080
+      ERPNEXT_API_KEY: ${ERPNEXT_API_KEY:-}
+      ERPNEXT_API_SECRET: ${ERPNEXT_API_SECRET:-}
+      ERPNEXT_URL: http://frontend:8080/api/method/sri.sri.doctype.importar_documentos_sri.importar_documentos_sri.recibir_respuesta_n8n
+    depends_on:
+      - frontend
+    networks:
+      - erpnext-network
+
+  # ============================================================================
+  # SRI API — Facturacion electronica .NET (GeneradorPDF)
+  # ============================================================================
+  sri-api:
+    build:
+      context: ./GeneradorPDF
+      dockerfile: Yachasoft.Sri.FacturacionElectronica/Dockerfile
+    platform: linux/amd64
+    restart: unless-stopped
+    ports:
+      - "${SRI_API_PORT:-5000}:5000"
+    environment:
+      ASPNETCORE_URLS: http://+:5000
+      ASPNETCORE_ENVIRONMENT: Production
+    networks:
+      - erpnext-network
+
 # ==============================================================================
-# Volúmenes persistentes
+# Volumenes persistentes
 # ==============================================================================
 volumes:
   db-data:

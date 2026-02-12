@@ -1,0 +1,27 @@
+# Git
+.git
+**/.git
+**/.github
+
+# Node
+node_modules
+
+# Python
+__pycache__
+*.pyc
+*.egg-info
+dist/
+
+# Docker
+frappe_docker/
+
+# IDE
+.vscode
+.idea
+
+# Misc
+*.md
+!ErpSRI/README.md
+license.txt
+TRADEMARK_POLICY.md
+sponsors.md

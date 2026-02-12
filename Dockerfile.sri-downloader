@@ -1,0 +1,21 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Copiar package.json e instalar dependencias (ruta anidada)
+COPY DescargaMasivaSRILinux/DescargaMasivaSRILinux/package*.json ./
+RUN npm install --production
+
+# Copiar codigo fuente
+COPY DescargaMasivaSRILinux/DescargaMasivaSRILinux/server.js ./
+COPY DescargaMasivaSRILinux/DescargaMasivaSRILinux/components/ ./components/
+
+# Copiar tenants.json desde la raiz del repo clonado
+COPY DescargaMasivaSRILinux/tenants.json ./tenants.json
+
+# Crear directorio temporal para XMLs
+RUN mkdir -p /app/components/temp
+
+EXPOSE 4000
+
+CMD ["node", "server.js"]
